@@ -373,16 +373,15 @@ python3 ssh-audit.py IP
 
 
 **TRANSFER FILES**
-. wget/curl : 
-. setup listener = python3 -m http.server 8000
-. transfer file = wget http://targetip:8000/filename
+. wget: 
+a) setup listener = python3 -m http.server 8000
+b) transfer file = wget http://targetip:8000/filename
 . curl http://targetip:8000/filename -o filename
-. scp(needsshpassword) :
 . scp filename username@targetip:filedirectory
-. Base64 : 
+. Base64: 
 a) base64 filename -w 0
 b) echo filecontent | base64 -d > filename
-c) check legitimacy of file transfer = md5sum filename
+. check legitimacy of file transfer = md5sum filename
 1. Powershell
 . download file: 
 a) (New-Object Net.WebClient).DownloadFile('<Target File URL>','<Output File Name>')
