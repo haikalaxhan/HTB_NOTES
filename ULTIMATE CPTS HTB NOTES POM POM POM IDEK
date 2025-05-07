@@ -63,6 +63,45 @@ g) theHarvester
 
 
 
+**DORKING**
+. limits results to a specific website or domain = site:
+EX: Find all publicly accessible pages on example.com = site:example.com
+. finds pages with a specific term in the URL = inurl:
+EX: Search for login pages on any website = inurl:login
+. searches for files of a particular type = filetype:
+EX: Find downloadable PDF = filetype:pdf
+. finds pages with a specific term in the title = intile:
+EX: Find documents titled confidential or similar = intitle:"confidential"
+. searches for a term within the body text of pages = intext: OR inbody:
+EX: Find webpages containing the term "password reset" - intext:"password reset"
+. displays the cached version of a webpage (if available) = cache:
+EX: View cached version of example.com to see previous contents = cache:example.com
+. finds pages that link to a specific webpage = link:
+EX: find websites linking to example.com = link:example.com
+. finds pages containing all specified words in body text = allintext:
+EX: finds pages containg both "admin" and "password reset" in body text = allintext:admin password reset
+. finds pages containing specified words in URL = allinurl:
+EX: finds pages with "admin" and "panel" in URL = allinurl:admin panel
+. finds pages containing specified words in title = allinttile:
+EX: finds pages with "confidential" and "report" in the title = allintitle:confidential report
+. USE CASE
+a) finding login pages:
+i. site:example.com inurl:login
+ii. site:example.com (inurl:login OR inurl:admin)
+b) identifying exposed files:
+i. site:example.com filetype:pdf
+ii. site:example.com (filetype:xls OR filetype:docx)
+c) finding configuration files:
+i. site:example.com inurl:config.php
+ii. site:example.com (ext:conf OR ext:cnf)
+d) finding database backups:
+i. site:example.com inurl:backup
+ii. site:example/com filetype:sql
+
+
+
+
+
 **FTP**
 . vstpfd config file = cat /etc/vsftpd.conf | grep -v "#”
 . ftpusers check = cat /etc/ftpusers
@@ -371,11 +410,23 @@ python3 ssh-audit.py IP
 
 
 **WEB**
+. web recon:
+a) FinalRecon
+b) Recon-ng
+c) theHarvester
+d) SpiderFoot
+e) OSINT Framework
 . gobuster dir -u http://url/ -w /usr/share/dirb/wordlists/common.txt
 . gobuster dns -d target.com -w /usr/share/SecLists/Discovery/DNS/namelist.txt
 . curl -IL https://target.com
 . whatweb target.com
 . url/robots.txt
+. crawling:
+a) install scrapy = pip3 install scrapy
+b) wget -O ReconSpider.zip https://academy.hackthebox.com/storage/modules/144/ReconSpider.v1.2.zip
+c) unzip ReconSpider.zip
+d) python3 [ReconSpider.py](http://ReconSpider.py) http://target.com
+e) cat results.json
 
 
 
