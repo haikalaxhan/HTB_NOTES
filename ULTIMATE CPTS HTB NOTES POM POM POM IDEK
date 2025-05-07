@@ -1,5 +1,3 @@
-HTB1(INFORMATION GATHERING)
-
 **ENUMERATION/BANNER GRABBING**
 . ssh username@IP port
 . banner grabbing ssh - nc ip port
