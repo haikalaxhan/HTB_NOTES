@@ -222,12 +222,23 @@ c) cd target-NFS
 
 
 **DNS**
-. enumerate DNS = dig soa domain
+. shows full path of DNS resolution = dig +trace domain.com
+. reverse lookup on IP = dig +x IP
+. retrieves start of authority (SOA) = dig soa domain.com
 . default configuration DNS = cat /etc/bind/named.conf.local
-. dig NS Query = dig ns domain @IP
+. default A record lookup for domain = dig domain.com
+. retrieves IPv4 address (A record) = dig domain.com A
+. retrieves IPv4 address (AAAA record) = dig domain.com AAAA
+. find mail server = dig domain.com MX
+. find name server = dig domain.com NS
+. retrieves TXT records = dig domain.com TXT
+. retrieves canonical name = dig domain.com CNAME
+. specifies a specific name server to query = dig ns domain.com @IP
 . dig Version Query = dig CH TXT version.bin IP
-. dig ANY Query = dig any domain @IP
-. dig AXFR Zone Transfer = dig axfr domain @IP
+. dig ANY Query = dig any domain.com @IP
+. dig AXFR Zone Transfer: 
+a) dig axfr domain.com @IP
+b) dig axft dns1 dns2
 . dig AXFR Zone Transfer-Internal = dig axfr internal.domain @IP
 . subdomain brute force = for sub in $(cat /opt/useful/SecLists/Discovery/DNS/subdomains-top1million-110000.txt);do dig $sub.domain @IP | grep -v ';\|SOA' | sed -r '/^\s*$/d' | grep $sub | tee -a subdomains.txt;done
 . alternative enumerate DNS = dnsenum --dnsserver IP --enum -p 0 -s 0 -o subdomains.txt -f /opt/useful/SecLists/Discovery/DNS/subdomains-top1million-110000.txt domain
@@ -239,7 +250,7 @@ d) dnsenum
 e) fierce
 f) dnsrecon
 g) theHarvester
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/e7797c46-f1ea-43d4-8c89-3459298edc5b/5c01c1e5-0d36-4a70-83e9-2a26f637b23c/image.png)
+
 
 
 
