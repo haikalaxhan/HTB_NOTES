@@ -230,7 +230,16 @@ c) cd target-NFS
 . dig AXFR Zone Transfer = dig axfr domain @IP
 . dig AXFR Zone Transfer-Internal = dig axfr internal.domain @IP
 . subdomain brute force = for sub in $(cat /opt/useful/SecLists/Discovery/DNS/subdomains-top1million-110000.txt);do dig $sub.domain @IP | grep -v ';\|SOA' | sed -r '/^\s*$/d' | grep $sub | tee -a subdomains.txt;done
-. alternative enumerate DNS = dnsenum - -dnsserver IP - -enum -p 0 -s 0 -o subdomains.txt -f /opt/useful/SecLists/Discovery/DNS/subdomains-top1million-110000.txt domain
+. alternative enumerate DNS = dnsenum --dnsserver IP --enum -p 0 -s 0 -o subdomains.txt -f /opt/useful/SecLists/Discovery/DNS/subdomains-top1million-110000.txt domain
+. alternative to digging dns:
+a) dig
+b) nslookup
+c) host
+d) dnsenum
+e) fierce
+f) dnsrecon
+g) theHarvester
+![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/e7797c46-f1ea-43d4-8c89-3459298edc5b/5c01c1e5-0d36-4a70-83e9-2a26f637b23c/image.png)
 
 
 
